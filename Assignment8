@@ -581,3 +581,69 @@ COURSE_NO  COURSE_NAME    TOTAL_STUDENTS
 ---------  -------------  --------------
 C101       C Programming  2
 */
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_salary EMP.SAL%TYPE;
+BEGIN
+    SELECT SAL
+    INTO v_salary
+    FROM EMP
+    WHERE ENAME = 'SMITH';
+
+    IF v_salary > 10000 THEN
+        DBMS_OUTPUT.PUT_LINE('Smith is earning enough');
+    ELSE
+        UPDATE EMP
+        SET SAL = SAL + 500
+        WHERE ENAME = 'SMITH';
+
+        DBMS_OUTPUT.PUT_LINE('Smith salary increased by Rs. 500');
+    END IF;
+
+    COMMIT;
+END;
+/
+CREATE TABLE AREAS
+(
+    RADIUS NUMBER(5,2),
+    AREA NUMBER(10,2)
+);
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_radius NUMBER;
+    v_area   NUMBER;
+BEGIN
+    FOR v_radius IN 3..7
+    LOOP
+        v_area := 3.14159 * v_radius * v_radius;
+
+        INSERT INTO AREAS
+        VALUES (v_radius, v_area);
+
+        DBMS_OUTPUT.PUT_LINE(
+            'Radius = ' || v_radius ||
+            '  Area = ' || ROUND(v_area, 2)
+        );
+    END LOOP;
+
+    COMMIT;
+END;
+/
+SELECT * FROM AREAS;
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_string VARCHAR2(100) := 'HELLO';
+    v_reverse VARCHAR2(100) := '';
+BEGIN
+    FOR i IN REVERSE 1..LENGTH(v_string)
+    LOOP
+        v_reverse := v_reverse || SUBSTR(v_string, i, 1);
+    END LOOP;
+
+    DBMS_OUTPUT.PUT_LINE('Original String : ' || v_string);
+    DBMS_OUTPUT.PUT_LINE('Reversed String : ' || v_reverse);
+END;
+/
