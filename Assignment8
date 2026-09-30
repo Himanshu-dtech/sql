@@ -1,0 +1,456 @@
+/*========================================================
+  1. CREATE TABLES
+========================================================*/
+
+/* 1. COURSE TABLE */
+
+CREATE TABLE COURSE
+(
+    COURSE_NO CHAR(4) PRIMARY KEY,
+    COURSE_NAME VARCHAR2(20)
+);
+
+
+/* 2. COURSE_FEE TABLE */
+
+CREATE TABLE COURSE_FEE
+(
+    COURSE_NO CHAR(4) PRIMARY KEY,
+    FULL_PART CHAR(1),
+    FEES NUMBER(10),
+
+    CONSTRAINT FK_COURSE_FEE
+    FOREIGN KEY (COURSE_NO)
+    REFERENCES COURSE(COURSE_NO)
+);
+
+
+/* 3. STUDENT TABLE */
+
+CREATE TABLE STUDENT
+(
+    PROSPECTUS_NO NUMBER(10) PRIMARY KEY,
+    NAME VARCHAR2(20),
+    ADDRESS VARCHAR2(30),
+    PHONE_NO NUMBER(11),
+    D_O_B DATE,
+    TOTAL_AMNT NUMBER(10,2),
+    AMNT_PAID NUMBER(10,2),
+    INSTALLMENT NUMBER(10,2)
+);
+
+
+/* 4. INSTALLMENT TABLE */
+
+CREATE TABLE INSTALLMENT
+(
+    PROSPECTUS_NO NUMBER(10),
+    INSTALLMENT_AMNT NUMBER(10,2),
+    DUE_DT DATE,
+    PAID CHAR(1),
+
+    CONSTRAINT FK_INSTALLMENT_STUDENT
+    FOREIGN KEY (PROSPECTUS_NO)
+    REFERENCES STUDENT(PROSPECTUS_NO)
+);
+
+
+/* 5. COURSE_TAKEN TABLE */
+
+CREATE TABLE COURSE_TAKEN
+(
+    PROSPECTUS_NO NUMBER(10),
+    COURSE_NO VARCHAR2(4),
+    START_DT DATE,
+    FULL_PART CHAR(1),
+    TIME_SLOT CHAR(2),
+    PERFORMANCE VARCHAR2(20),
+
+    CONSTRAINT FK_CT_STUDENT
+    FOREIGN KEY (PROSPECTUS_NO)
+    REFERENCES STUDENT(PROSPECTUS_NO),
+
+    CONSTRAINT FK_CT_COURSE
+    FOREIGN KEY (COURSE_NO)
+    REFERENCES COURSE(COURSE_NO)
+);
+
+
+/*========================================================
+  2. INSERT VALUES INTO COURSE
+========================================================*/
+
+INSERT INTO COURSE VALUES
+('C101','C Programming');
+
+INSERT INTO COURSE VALUES
+('C102','Unix');
+
+INSERT INTO COURSE VALUES
+('C103','Java');
+
+INSERT INTO COURSE VALUES
+('C104','Python');
+
+INSERT INTO COURSE VALUES
+('C105','Database');
+
+
+/*========================================================
+  3. INSERT VALUES INTO COURSE_FEE
+========================================================*/
+
+INSERT INTO COURSE_FEE VALUES
+('C101','F',6000);
+
+INSERT INTO COURSE_FEE VALUES
+('C102','F',8000);
+
+INSERT INTO COURSE_FEE VALUES
+('C103','P',12000);
+
+INSERT INTO COURSE_FEE VALUES
+('C104','F',9000);
+
+INSERT INTO COURSE_FEE VALUES
+('C105','P',15000);
+
+
+/*========================================================
+  4. INSERT VALUES INTO STUDENT
+========================================================*/
+
+INSERT INTO STUDENT VALUES
+(1001,'ALICE','KOLKATA',9876543210,
+TO_DATE('10-01-2005','DD-MM-YYYY'),
+6000,6000,0);
+
+INSERT INTO STUDENT VALUES
+(1002,'BOB','DELHI',9876543211,
+TO_DATE('15-03-2004','DD-MM-YYYY'),
+8000,4000,4000);
+
+INSERT INTO STUDENT VALUES
+(1003,'AMIT','MUMBAI',9876543212,
+TO_DATE('20-05-2005','DD-MM-YYYY'),
+12000,12000,0);
+
+INSERT INTO STUDENT VALUES
+(1004,'ANITA','KOLKATA',9876543213,
+TO_DATE('05-08-2004','DD-MM-YYYY'),
+9000,5000,4000);
+
+INSERT INTO STUDENT VALUES
+(1005,'RAHUL','DELHI',9876543214,
+TO_DATE('12-12-2003','DD-MM-YYYY'),
+15000,7500,7500);
+
+INSERT INTO STUDENT VALUES
+(1006,'ROHIT','KOLKATA',9876543215,
+TO_DATE('18-09-2005','DD-MM-YYYY'),
+6000,6000,0);
+
+INSERT INTO STUDENT VALUES
+(1007,'ARJUN','PATNA',9876543216,
+TO_DATE('25-09-2004','DD-MM-YYYY'),
+8000,4000,4000);
+
+INSERT INTO STUDENT VALUES
+(1008,'PRIYA','KOLKATA',9876543217,
+TO_DATE('05-09-2005','DD-MM-YYYY'),
+9000,9000,0);
+
+
+/*========================================================
+  5. INSERT VALUES INTO COURSE_TAKEN
+========================================================*/
+
+INSERT INTO COURSE_TAKEN VALUES
+(1001,'C101',
+TO_DATE('10-06-2026','DD-MM-YYYY'),
+'F','M1','GOOD');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1002,'C102',
+TO_DATE('15-06-2026','DD-MM-YYYY'),
+'F','M2','GOOD');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1003,'C103',
+TO_DATE('20-07-2026','DD-MM-YYYY'),
+'P','M1','EXCELLENT');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1004,'C104',
+TO_DATE('05-08-2026','DD-MM-YYYY'),
+'F','M2','GOOD');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1005,'C105',
+TO_DATE('12-08-2026','DD-MM-YYYY'),
+'P','E1','AVERAGE');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1006,'C101',
+TO_DATE('18-09-2026','DD-MM-YYYY'),
+'F','M1','GOOD');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1007,'C101',
+TO_DATE('20-09-2026','DD-MM-YYYY'),
+'F','M2','EXCELLENT');
+
+INSERT INTO COURSE_TAKEN VALUES
+(1008,'C104',
+TO_DATE('22-09-2026','DD-MM-YYYY'),
+'F','E1','GOOD');
+
+COMMIT;
+
+
+/*========================================================
+  QUESTION 1
+  Retrieve name and course_no of all students.
+========================================================*/
+
+SELECT S.NAME, CT.COURSE_NO
+FROM STUDENT S
+JOIN COURSE_TAKEN CT
+ON S.PROSPECTUS_NO = CT.PROSPECTUS_NO;
+
+
+/* OUTPUT
+
+NAME    COURSE_NO
+------  ---------
+ALICE   C101
+BOB     C102
+AMIT    C103
+ANITA   C104
+RAHUL   C105
+ROHIT   C101
+ARJUN   C101
+PRIYA   C104
+*/
+
+
+/*========================================================
+  QUESTION 2
+  List names of students who have paid the full amount
+  at the time of admission.
+========================================================*/
+
+SELECT NAME, TOTAL_AMNT, AMNT_PAID
+FROM STUDENT
+WHERE AMNT_PAID = TOTAL_AMNT;
+
+
+/* OUTPUT
+
+NAME    TOTAL_AMNT  AMNT_PAID
+------  ----------  ---------
+ALICE   6000        6000
+AMIT    12000       12000
+ROHIT   6000        6000
+PRIYA   9000        9000
+*/
+
+
+/*========================================================
+  QUESTION 3
+  Find names of students starting with A.
+========================================================*/
+
+SELECT NAME
+FROM STUDENT
+WHERE NAME LIKE 'A%';
+
+
+/* OUTPUT
+
+NAME
+-----
+ALICE
+AMIT
+ANITA
+ARJUN
+*/
+
+
+/*========================================================
+  QUESTION 4
+  Find names of students whose total amount is not
+  equal to amount paid.
+========================================================*/
+
+SELECT NAME, TOTAL_AMNT, AMNT_PAID
+FROM STUDENT
+WHERE TOTAL_AMNT <> AMNT_PAID;
+
+
+/* OUTPUT
+
+NAME    TOTAL_AMNT  AMNT_PAID
+------  ----------  ---------
+BOB     8000        4000
+ANITA   9000        5000
+RAHUL   15000       7500
+ARJUN   8000        4000
+*/
+
+
+/*========================================================
+  QUESTION 5
+  Count number of students who have joined in the
+  current year and current month.
+========================================================*/
+
+SELECT COUNT(*) AS TOTAL_STUDENTS
+FROM COURSE_TAKEN
+WHERE EXTRACT(YEAR FROM START_DT) = EXTRACT(YEAR FROM SYSDATE)
+AND EXTRACT(MONTH FROM START_DT) = EXTRACT(MONTH FROM SYSDATE);
+
+
+/* OUTPUT
+
+TOTAL_STUDENTS
+--------------
+3
+*/
+
+
+/*========================================================
+  QUESTION 6
+  Determine maximum and minimum course fees.
+========================================================*/
+
+SELECT MAX(FEES) AS MAX_FEES,
+       MIN(FEES) AS MIN_FEES
+FROM COURSE_FEE;
+
+
+/* OUTPUT
+
+MAX_FEES  MIN_FEES
+--------  --------
+15000     6000
+*/
+
+
+/*========================================================
+  QUESTION 7
+  Print details of courses whose fees are between
+  5000 and 10000.
+========================================================*/
+
+SELECT C.COURSE_NO,
+       C.COURSE_NAME,
+       CF.FEES
+FROM COURSE C
+JOIN COURSE_FEE CF
+ON C.COURSE_NO = CF.COURSE_NO
+WHERE CF.FEES BETWEEN 5000 AND 10000;
+
+
+/* OUTPUT
+
+COURSE_NO  COURSE_NAME      FEES
+---------  ---------------  ----
+C101       C Programming    6000
+C102       Unix             8000
+C104       Python           9000
+*/
+
+
+/*========================================================
+  QUESTION 8
+  Display the admission date in date, month and year
+  format.
+========================================================*/
+
+SELECT PROSPECTUS_NO,
+       TO_CHAR(START_DT,'DD') AS DATE,
+       TO_CHAR(START_DT,'MONTH') AS MONTH,
+       TO_CHAR(START_DT,'YYYY') AS YEAR
+FROM COURSE_TAKEN;
+
+
+/* OUTPUT
+
+PROSPECTUS_NO  DATE  MONTH       YEAR
+-------------  ----  ----------  ----
+1001           10    JUNE        2026
+1002           15    JUNE        2026
+1003           20    JULY        2026
+1004           05    AUGUST      2026
+1005           12    AUGUST      2026
+1006           18    SEPTEMBER   2026
+1007           20    SEPTEMBER   2026
+1008           22    SEPTEMBER   2026
+*/
+
+
+/*========================================================
+  QUESTION 9
+  Change course name from Unix to Unix Operating System.
+========================================================*/
+
+UPDATE COURSE
+SET COURSE_NAME = 'Unix Operating System'
+WHERE COURSE_NAME = 'Unix';
+
+COMMIT;
+
+
+/* CHECK OUTPUT */
+
+SELECT *
+FROM COURSE
+WHERE COURSE_NO = 'C102';
+
+
+/* OUTPUT
+
+COURSE_NO  COURSE_NAME
+---------  ----------------------
+C102       Unix Operating System
+*/
+
+
+/*========================================================
+  QUESTION 10
+  Find out in which course the maximum number of
+  students have taken admission in the current month.
+========================================================*/
+
+SELECT C.COURSE_NO,
+       C.COURSE_NAME,
+       COUNT(CT.PROSPECTUS_NO) AS TOTAL_STUDENTS
+FROM COURSE C
+JOIN COURSE_TAKEN CT
+ON C.COURSE_NO = CT.COURSE_NO
+WHERE EXTRACT(YEAR FROM CT.START_DT) = EXTRACT(YEAR FROM SYSDATE)
+AND EXTRACT(MONTH FROM CT.START_DT) = EXTRACT(MONTH FROM SYSDATE)
+GROUP BY C.COURSE_NO, C.COURSE_NAME
+HAVING COUNT(CT.PROSPECTUS_NO) =
+(
+    SELECT MAX(CNT)
+    FROM
+    (
+        SELECT COUNT(*) AS CNT
+        FROM COURSE_TAKEN
+        WHERE EXTRACT(YEAR FROM START_DT) =
+              EXTRACT(YEAR FROM SYSDATE)
+        AND EXTRACT(MONTH FROM START_DT) =
+              EXTRACT(MONTH FROM SYSDATE)
+        GROUP BY COURSE_NO
+    )
+);
+
+
+/* OUTPUT
+
+COURSE_NO  COURSE_NAME    TOTAL_STUDENTS
+---------  -------------  --------------
+C101       C Programming  2
+*/
